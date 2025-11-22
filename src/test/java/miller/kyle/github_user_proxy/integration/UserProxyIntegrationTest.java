@@ -3,11 +3,13 @@ package miller.kyle.github_user_proxy.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import miller.kyle.github_user_proxy.dto.GitHubRepoResponse;
 import miller.kyle.github_user_proxy.dto.GitHubUserResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -37,11 +40,22 @@ class UserProxyIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     private MockRestServiceServer mockServer;
 
     @BeforeEach
     void setUp() {
         mockServer = MockRestServiceServer.createServer(restTemplate);
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Clear all caches after each test to ensure test isolation
+        cacheManager.getCacheNames().forEach(cacheName ->
+            Objects.requireNonNull(cacheManager.getCache(cacheName)).clear()
+        );
     }
 
     @Test

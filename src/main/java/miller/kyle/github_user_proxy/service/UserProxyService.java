@@ -7,6 +7,7 @@ import miller.kyle.github_user_proxy.dto.RepoInfo;
 import miller.kyle.github_user_proxy.dto.UserProxyResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -35,6 +36,7 @@ public class UserProxyService {
      * @param username GitHub username
      * @return UserProxyResponse with transformed data
      */
+    @Cacheable(value = "github-users", key = "#username")
     public UserProxyResponse getUserData(String username) {
         logger.info("Fetching data for user: {}", username);
 
